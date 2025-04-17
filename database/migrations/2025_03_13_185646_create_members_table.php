@@ -17,8 +17,9 @@ return new class extends Migration
             $table->string('name', 100)->default('text');
             $table->string('no_telp', 100)->unique();
             $table->string('alamat', 100)->nullable()->default('text');
-            $table->decimal('persentase', 5, 2)->default(5); 
-            $table->integer('points')->default(0); 
+            $table->integer('points')->default(0);
+            $table->string('tier')->default('Bronze'); // Member tier (e.g., Bronze, Silver, Gold)
+            $table->date('last_transaction_date')->nullable(); // Date of the last transaction
             $table->timestamps();
         });
     }

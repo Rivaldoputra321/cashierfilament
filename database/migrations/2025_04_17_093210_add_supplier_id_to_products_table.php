@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('discount_targets', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('discount_id')->constrained('discounts')->onDelete('cascade');
-            $table->morphs('target');
-            $table->timestamps();
+        Schema::table('products', function (Blueprint $table) {
+            $table->foreignId('supplier_id')->constrained('suppliers')->cascadeOnDelete()->after('kd_product');
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('discount_targets');
+        Schema::table('products', function (Blueprint $table) {
+            //
+        });
     }
 };

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('description');
             $table->enum('type', ['restock', 'oprational', 'salaries', 'other']);
             $table->foreignId('supplier_id')->constrained('suppliers')->cascadeOnDelete()->nullable();
-            $table->foreignId('product_id')->constrained('products')->cascadeOnDelete()->nullable();
             $table->decimal('total_nominal', 15, 2);
             $table->timestamps();
         });

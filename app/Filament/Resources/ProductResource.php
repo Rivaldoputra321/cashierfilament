@@ -10,6 +10,7 @@ use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\DatePicker;
@@ -20,11 +21,11 @@ use App\Filament\Resources\ProductResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ProductResource\RelationManagers;
 
-class ProductResource extends Resource
+class ProductResource extends Resource 
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-cube';
 
     public static function form(Form $form): Form
     {
@@ -40,6 +41,13 @@ class ProductResource extends Resource
                 ->required()
                 ->label('Category')
                 ->multiple()
+                ->preload()
+                ->searchable()
+                ->reactive(),
+                Select::make('supplier_id')
+                ->relationship('suppliers', 'name')
+                ->required()
+                ->label('Supplier')
                 ->preload()
                 ->searchable()
                 ->reactive(),
@@ -76,32 +84,35 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('kd_product')
+                TextColumn::make('kd_product')
                 ->label('Code')
                 ->searchable(),
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                 ->label('Name')
                 ->sortable()
                 ->searchable(),
-                Tables\Columns\TextColumn::make('categories.name')
+                TextColumn::make('categories.name')
                 ->label('Categories')
-                ->listWithLineBreaks() // atau .bulleted() untuk tampilan bullet
+                ->listWithLineBreaks() 
                 ->searchable(),
-                Tables\Columns\TextColumn::make('stok')
+                TextColumn::make('suppliers.name')
+                ->label('Suppliers')
+                ->searchable(),
+                TextColumn::make('stok')
                 ->label('Stock')
                 ->searchable(),
-                Tables\Columns\TextColumn::make('harga')
+                TextColumn::make('harga')
                 ->label('Price')
                 ->money('idr')
                 ->searchable(),           
-                Tables\Columns\TextColumn::make('expired_at')
+                TextColumn::make('expired_at')
                 ->label('Expired Date')
                 ->date()
                 ->searchable(),
                 ImageColumn::make('image')
-                ->label('Image')
-               ,
+                ->label('Image'),
             ])
+            
             ->filters([
                 //
             ])
@@ -115,6 +126,8 @@ class ProductResource extends Resource
                 ]),
             ]);
     }
+
+    
 
     public static function getRelations(): array
     {

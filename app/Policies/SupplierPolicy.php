@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\discount;
+use App\Models\Supplier;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class discountPolicy
+class SupplierPolicy
 {
     use HandlesAuthorization;
 
@@ -15,15 +15,15 @@ class discountPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_discount');
+        return $user->can('view_any_supplier');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, discount $discount): bool
+    public function view(User $user, Supplier $supplier): bool
     {
-        return $user->can('view_discount');
+        return $user->can('view_supplier');
     }
 
     /**
@@ -31,23 +31,23 @@ class discountPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_discount');
+        return $user->can('create_supplier');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, discount $discount): bool
+    public function update(User $user, Supplier $supplier): bool
     {
-        return $user->can('update_discount');
+        return $user->can('update_supplier');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, discount $discount): bool
+    public function delete(User $user, Supplier $supplier): bool
     {
-        return $user->can('delete_discount');
+        return $user->can('delete_supplier');
     }
 
     /**
@@ -55,15 +55,15 @@ class discountPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_discount');
+        return $user->can('delete_any_supplier');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, discount $discount): bool
+    public function forceDelete(User $user, Supplier $supplier): bool
     {
-        return $user->can('force_delete_discount');
+        return $user->can('force_delete_supplier');
     }
 
     /**
@@ -71,15 +71,15 @@ class discountPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_discount');
+        return $user->can('force_delete_any_supplier');
     }
 
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, discount $discount): bool
+    public function restore(User $user, Supplier $supplier): bool
     {
-        return $user->can('restore_discount');
+        return $user->can('restore_supplier');
     }
 
     /**
@@ -87,15 +87,15 @@ class discountPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_discount');
+        return $user->can('restore_any_supplier');
     }
 
     /**
      * Determine whether the user can replicate.
      */
-    public function replicate(User $user, discount $discount): bool
+    public function replicate(User $user, Supplier $supplier): bool
     {
-        return $user->can('replicate_discount');
+        return $user->can('replicate_supplier');
     }
 
     /**
@@ -103,6 +103,6 @@ class discountPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_discount');
+        return $user->can('reorder_supplier');
     }
 }

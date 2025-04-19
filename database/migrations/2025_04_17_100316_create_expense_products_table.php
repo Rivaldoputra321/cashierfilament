@@ -16,8 +16,10 @@ return new class extends Migration
             $table->foreignId('expense_id')->constrained('expenses')->cascadeOnDelete();
             $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
             $table->integer('quantity'); 
-            $table->integer('price');
-            $table->integer('subtotal');
+            $table->decimal('price_per_unit', 15, 2);
+            $table->decimal('subtotal', 15, 2);
+            $table->date('arrival_date')->nullable();
+            $table->boolean('processed')->default(false);
             $table->timestamps();
         });
     }

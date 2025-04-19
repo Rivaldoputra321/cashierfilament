@@ -18,31 +18,32 @@ class member extends Model
         });
     }
 
-    public function checkInactiveAndDowngrade()
+    public function updateTierBasedOnPoints()
     {
-        $inactivePeriod = Carbon::now()->subMonths(3); // 3 bulan tanpa transaksi
-
-        if ($this->last_transaction_date && Carbon::parse($this->last_transaction_date)->lessThan($inactivePeriod)) {
-            $this->downgradeTier();
+        $tier = 'Bronze';
+    
+        if ($this->points >= 1000) {
+            $tier = 'Gold';
+        } elseif ($this->points >= 500) {
+            $tier = 'Silver';
+        }
+    
+        if ($this->tier !== $tier) {
+            $this->tier = $tier;
+            $this->save();
         }
     }
 
-    /**
-     * Downgrade the member's tier.
-     */
-    public function downgradeTier()
+    public function handleInactivityDowngrade()
     {
-        switch ($this->tier) {
-            case 'Gold':
-                $this->tier = 'Silver';
-                break;
-            case 'Silver':
-                $this->tier = 'Bronze';
-                break;
-            default:
-                $this->tier = 'Bronze';
+        if ($this->last_transaction_date) {
+            $monthsInactive = now()->diffInMonths(Carbon::parse($this->last_transaction_date));
+    
+            if ($monthsInactive >= 3) {
+                $this->points = max(0, $this->points - 100);
+                $this->updateTierBasedOnPoints();
+            }
         }
-
-        $this->save();
     }
+    
 }

@@ -4,25 +4,22 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
-use App\Models\Member;
+use App\Models\Supplier;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Illuminate\Support\Str;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Tables\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\MemberResource\Pages;
+use App\Filament\Resources\SupplierResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\MemberResource\RelationManagers;
+use App\Filament\Resources\SupplierResource\RelationManagers;
 
-class MemberResource extends Resource
+class SupplierResource extends Resource
 {
-    protected static ?string $model = Member::class;
+    protected static ?string $model = Supplier::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-credit-card';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
@@ -45,11 +42,7 @@ class MemberResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->poll('10s')
             ->columns([
-                TextColumn::make('kd_member')
-                    ->label('Code')
-                    ->searchable(),
                 TextColumn::make('name')
                     ->label('Name')
                     ->sortable()
@@ -60,22 +53,12 @@ class MemberResource extends Resource
                 TextColumn::make('alamat')
                     ->label('Address')
                     ->searchable(),
-                TextColumn::make('points')->label('Poin')->sortable(),
-                TextColumn::make('tier')
-                    ->badge()
-                    ->color(fn ($state) => match ($state) {
-                            'Gold' => 'warning',
-                            'Silver' => 'info',
-                            'Bronze' => 'gray',
-                    }),
-                TextColumn::make('last_transaction_date')->label('Last Transaction')->date(),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -94,9 +77,9 @@ class MemberResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListMembers::route('/'),
-            'create' => Pages\CreateMember::route('/create'),
-            'edit' => Pages\EditMember::route('/{record}/edit'),
+            'index' => Pages\ListSuppliers::route('/'),
+            'create' => Pages\CreateSupplier::route('/create'),
+            'edit' => Pages\EditSupplier::route('/{record}/edit'),
         ];
     }
 }

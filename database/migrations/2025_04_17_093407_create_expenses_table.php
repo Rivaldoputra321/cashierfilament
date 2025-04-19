@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('expenses', function (Blueprint $table) {
             $table->id();
             $table->string('description');
-            $table->enum('type', ['restock', 'oprational', 'salaries', 'other']);
-            $table->foreignId('supplier_id')->constrained('suppliers')->cascadeOnDelete()->nullable();
+            $table->enum('type', ['restock', 'operational', 'salaries', 'other']);
+            $table->foreignId('supplier_id')->nullable()->constrained('suppliers')->cascadeOnDelete();
             $table->decimal('total_nominal', 15, 2);
             $table->timestamps();
         });

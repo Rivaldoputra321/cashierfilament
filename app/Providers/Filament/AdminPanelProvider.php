@@ -8,7 +8,11 @@ use Filament\Widgets;
 use Filament\PanelProvider;
 use App\Filament\Pages\Auth\Login;
 use Filament\Support\Colors\Color;
+use Awcodes\Overlook\OverlookPlugin;
+use App\Filament\Resources\UserResource;
 use Filament\Http\Middleware\Authenticate;
+use App\Filament\Resources\ProductResource;
+use Awcodes\Overlook\Widgets\OverlookWidget;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -32,6 +36,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->sidebarCollapsibleOnDesktop()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -39,7 +44,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                
+                OverlookWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -56,6 +61,13 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugins([
+                OverlookPlugin::make()
+                ->includes([
+                    ProductResource::class,
+                    UserResource::class,
+
+                ]),
+                
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
             ]);
     }

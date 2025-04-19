@@ -6,7 +6,7 @@ use Filament\Forms;
 use Filament\Tables;
 use App\Models\product;
 use App\Models\category;
-use App\Models\Discount;
+use App\Models\discount;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -30,7 +30,7 @@ use App\Filament\Resources\DiscountResource\Pages\CreateDiscount;
 
 class DiscountResource extends Resource
 {
-    protected static ?string $model = Discount::class;
+    protected static ?string $model = discount::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -39,88 +39,148 @@ class DiscountResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name')
-                ->required()
-                ->maxLength(255),
+                    ->label('Discount Name')
+                    ->required()
+                    ->maxLength(255),
+
                 Select::make('type')
+                    ->label('Discount Type')
                     ->required()
                     ->options([
                         'product' => 'Product',
                         'category' => 'Category',
+                        'supplier' => 'Supplier',
                     ])
                     ->reactive(),
+
+                Select::make('product_id')
+                    ->label('Products')
+                    ->relationship('products', 'name')
+                    ->multiple()
+                    ->searchable()
+                    ->preload()
+                    ->required(fn ($get) => $get('type') === 'product')
+                    ->hidden(fn ($get) => $get('type') !== 'product')
+                    ->nullable(),
+
+                Select::make('category_id')
+                    ->label('Categories')
+                    ->relationship('categories', 'name')
+                    ->multiple()
+                    ->searchable()
+                    ->preload()
+                    ->required(fn ($get) => $get('type') === 'category')
+                    ->hidden(fn ($get) => $get('type') !== 'category')
+                    ->nullable(),
+
+                Select::make('supplier_id')
+                    ->label('Supplier')
+                    ->relationship('suppliers', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required(fn ($get) => $get('type') === 'supplier')
+                    ->hidden(fn ($get) => $get('type') !== 'supplier')
+                    ->nullable(),
+
                 TextInput::make('discount_percentage')
+                    ->label('Discount Percentage (%)')
                     ->numeric()
                     ->required(),
+
                 TextInput::make('min_quantity')
+                    ->label('Minimum Quantity')
                     ->numeric()
                     ->nullable(),
+
                 Toggle::make('is_member_only')
-                    ->label('Hanya untuk member?'),
-        
-                DatePicker::make('start_date')->required(),
-                DatePicker::make('end_date')->required(),
-               // Produk
-            Select::make('target_ids')
-                ->label('Target Produk')
-                ->multiple()
-                ->hidden(fn ($get) => $get('type') !== 'product')
-                ->options(product::all()->pluck('name', 'id'))
-                ->afterStateHydrated(function ($component, $state, $record) {
-                    if ($record && $record->type === 'product') {
-                        $component->state(
-                            $record->discountTargets->where('targetable_type', product::class)->pluck('targetable_id')->toArray()
-                        );
-                    }
-              })
-                ->dehydrated(false),
+                    ->label('For Member Only')
+                    ->reactive(), // Ensure the toggle is reactive
 
-            // Kategori
-            Select::make('target_ids')
-                ->label('Target Kategori')
-                ->multiple()
-                ->hidden(fn ($get) => $get('type') !== 'category')
-                ->options(category::all()->pluck('name', 'id'))
-                ->afterStateHydrated(function ($component, $state, $record) {
-                    if ($record && $record->type === 'category') {
-                        $component->state(
-                            $record->discountTargets->where('targetable_type', category::class)->pluck('targetable_id')->toArray()
-                        );
-                    }
-                })
-                ->dehydrated(false),
+                Select::make('member_tiers')
+                    ->label('Member Tiers')
+                    ->multiple()
+                    ->default([])
+                    ->reactive()
+                    ->options([
+                        'Gold' => 'Gold',
+                        'Silver' => 'Silver',
+                        'Bronze' => 'Bronze',
+                    ])
+                    ->hidden(fn ($get) => !$get('is_member_only'))
+                    ->nullable(),
+                
 
+                DatePicker::make('start_date')
+                    ->label('Start Date')
+                    ->required()
+                    ->native(false)
+                    ->minDate(now()),
+
+                DatePicker::make('end_date')
+                    ->label('End Date')
+                    ->required()
+                    ->native(false)
+                    ->minDate(fn ($get) => $get('start_date') ?? now()),
             ]);
     }
+
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
                 TextColumn::make('kd_discount')
-                    ->label('Kode Diskon')
+                    ->label('Code')
                     ->searchable(),
                 TextColumn::make('type')
-                    ->label('Tipe Diskon')
+                    ->label('Discount Type')
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('products.name', 'categories.name', 'suppliers.name')
+                    ->label('Discount Target')
+                    ->sortable()
+                    ->formatStateUsing(function ($state, $record) {
+                        return match ($record->type) {
+                            'product' => $record->products->pluck('name')->join(', '),
+                            'category' => $record->categories->pluck('name')->join(', '),
+                            'supplier' => optional($record->supplier)->name,
+                            default => '-',
+                        };
+                    }),
+                
                 TextColumn::make('discount_percentage')
-                    ->label('Persentase Diskon')
+                    ->label('Discount Percentage (%)')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('min_quantity')
-                    ->label('Jumlah Minimal Pembelian')
+                    ->label('Minimum Quantity')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('start_date')
-                    ->label('Tanggal Mulai')
+                    ->label('Start Date')
                     ->date()
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('end_date')
-                    ->label('Tanggal Berakhir')
+                    ->label('End Date')
                     ->date()
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('is_member_only')
+                    ->label('For Member Only')
+                    ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No')
+                    ->color(fn ($state) => $state ? 'green' : 'red')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('member_tiers')
+                    ->label('Tier Member')
+                    ->formatStateUsing(fn ($state) => 
+                        is_array($state)
+                            ? implode(', ', $state)
+                            : ($state ? implode(', ', explode(',', $state)) : '-')
+                    ),
+                
+
             ])
             ->filters([
                 //
@@ -134,45 +194,6 @@ class DiscountResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    protected function handleRecordCreation(array $data): Discount
-    {
-        $targets = $data['target_ids'] ?? [];
-        unset($data['target_ids']);
-
-        $discount = Discount::create($data);
-
-        foreach ($targets as $targetId) {
-            $discount->discountTargets()->create([
-                'targetable_id' => $targetId,
-                'targetable_type' => $data['type'] === 'product'
-                    ? product::class
-                    : category::class,
-            ]);
-        }
-
-        return $discount;
-    }
-
-    protected function handleRecordUpdate(Discount $record, array $data): Discount
-    {
-        $targets = $data['target_ids'] ?? [];
-        unset($data['target_ids']);
-
-        $record->update($data);
-
-        $record->discountTargets()->delete();
-        foreach ($targets as $targetId) {
-            $record->discountTargets()->create([
-                'targetable_id' => $targetId,
-                'targetable_type' => $data['type'] === 'product'
-                    ? product::class
-                    : category::class,
-            ]);
-        }
-
-        return $record;
     }
 
 

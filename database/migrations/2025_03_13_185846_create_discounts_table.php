@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('kd_discount', 100)->unique();
             $table->string('name', 100);
-            $table->enum('type', ['category', 'product', 'other']);
+            $table->enum('type', ['category', 'product', 'supplier']);
             $table->decimal('discount_percentage', 5, 2);
             $table->boolean('is_member_only')->default(false);
+            $table->text('member_tiers')->nullable(); 
             $table->integer('min_quantity')->nullable(); // Berlaku untuk bulk purchase
             $table->date('start_date');
             $table->date('end_date');

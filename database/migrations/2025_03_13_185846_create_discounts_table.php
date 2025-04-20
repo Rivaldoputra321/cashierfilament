@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('kd_discount', 100)->unique();
             $table->string('name', 100);
-            $table->enum('type', ['category', 'product', 'supplier']);
+            $table->enum('type', ['category', 'product',]);
             $table->decimal('discount_percentage', 5, 2);
             $table->boolean('is_member_only')->default(false);
             $table->text('member_tiers')->nullable(); 

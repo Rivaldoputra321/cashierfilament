@@ -16,16 +16,20 @@ class member extends Model
         static::creating(function ($member) {
             $member->kd_member = (string) Str::uuid();
         });
+
+        static::saving(function ($member) {
+            $member->updateTierBasedOnPoints();
+        });
     }
 
     public function updateTierBasedOnPoints()
     {
-        $tier = 'Bronze';
+        $tier = 'bronze';
     
         if ($this->points >= 1000) {
-            $tier = 'Gold';
+            $tier = 'gold';
         } elseif ($this->points >= 500) {
-            $tier = 'Silver';
+            $tier = 'silver';
         }
     
         if ($this->tier !== $tier) {

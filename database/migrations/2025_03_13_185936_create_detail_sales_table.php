@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('detail_sales', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sales_id')->constrained('sales')->cascadeOnDelete();
-            $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
-            $table->foreignId('discount_id')->constrained('discounts')->cascadeOnDelete()->nullable();
+            $table->foreignId('sales_id')->constrained('sales')->onDelete('cascade');
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $table->decimal('discount_value', 15, 2)->default(0)->nullable();
+            $table->foreignId('discount_id')->nullable()->constrained('discounts')->cascadeOnDelete();
             $table->integer('quantity');
             $table->decimal('price', 10, 2);
             $table->decimal('subtotal', 15, 2);

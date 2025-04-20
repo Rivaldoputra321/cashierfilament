@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\member;
+use App\Models\DetailSale;
 use Illuminate\Database\Eloquent\Model;
 
 class sale extends Model
@@ -29,6 +30,6 @@ class sale extends Model
     }
     public function details()
     {
-        return $this->hasMany(detail_sale::class);
+        return $this->hasMany(DetailSale::class);
     }
 }

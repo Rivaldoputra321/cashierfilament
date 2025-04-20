@@ -14,11 +14,10 @@ return new class extends Migration
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
     
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete(); 
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
             $table->foreignId('member_id')->nullable()->constrained()->onDelete('set null'); 
             $table->decimal('total_amount', 15, 2); 
             $table->decimal('discount_total', 15, 2)->default(0);
-            $table->decimal('final_total', 15, 2); 
             $table->decimal('paid_amount', 15, 2); 
             $table->decimal('change_amount', 15, 2); 
             $table->integer('earned_points')->default(0);

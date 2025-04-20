@@ -73,14 +73,6 @@ class DiscountResource extends Resource
                     ->hidden(fn ($get) => $get('type') !== 'category')
                     ->nullable(),
 
-                Select::make('supplier_id')
-                    ->label('Supplier')
-                    ->relationship('suppliers', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required(fn ($get) => $get('type') === 'supplier')
-                    ->hidden(fn ($get) => $get('type') !== 'supplier')
-                    ->nullable(),
 
                 TextInput::make('discount_percentage')
                     ->label('Discount Percentage (%)')
@@ -102,9 +94,9 @@ class DiscountResource extends Resource
                     ->default([])
                     ->reactive()
                     ->options([
-                        'Gold' => 'Gold',
-                        'Silver' => 'Silver',
-                        'Bronze' => 'Bronze',
+                        'gold' => 'Gold',
+                        'silver' => 'Silver',
+                        'bronze' => 'Bronze',
                     ])
                     ->hidden(fn ($get) => !$get('is_member_only'))
                     ->nullable(),
@@ -113,14 +105,13 @@ class DiscountResource extends Resource
                 DatePicker::make('start_date')
                     ->label('Start Date')
                     ->required()
-                    ->native(false)
-                    ->minDate(now()),
+                    ->native(false),
 
                 DatePicker::make('end_date')
                     ->label('End Date')
                     ->required()
                     ->native(false)
-                    ->minDate(fn ($get) => $get('start_date') ?? now()),
+                   ,
             ]);
     }
 
@@ -136,14 +127,13 @@ class DiscountResource extends Resource
                     ->label('Discount Type')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('products.name', 'categories.name', 'suppliers.name')
+                TextColumn::make('products.name', 'categories.name',)
                     ->label('Discount Target')
                     ->sortable()
                     ->formatStateUsing(function ($state, $record) {
                         return match ($record->type) {
                             'product' => $record->products->pluck('name')->join(', '),
                             'category' => $record->categories->pluck('name')->join(', '),
-                            'supplier' => optional($record->supplier)->name,
                             default => '-',
                         };
                     }),

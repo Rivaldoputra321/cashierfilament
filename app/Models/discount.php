@@ -45,10 +45,6 @@ class discount extends Model
             'discount_id', 'product_id');
     }
 
-    public function suppliers()
-{
-    return $this->belongsTo(Supplier::class);
-}
 
 
 }

@@ -39,6 +39,8 @@ class MemberResource extends Resource
                 ->maxLength(20)
                 ->tel()
                 ->unique(ignoreRecord: true),
+                TextInput::make('points')
+                ->required()
             ]);
     }
 
@@ -64,9 +66,9 @@ class MemberResource extends Resource
                 TextColumn::make('tier')
                     ->badge()
                     ->color(fn ($state) => match ($state) {
-                            'Gold' => 'warning',
-                            'Silver' => 'info',
-                            'Bronze' => 'gray',
+                            'gold' => 'warning',
+                            'silver' => 'info',
+                            'bronze' => 'gray',
                     }),
                 TextColumn::make('last_transaction_date')->label('Last Transaction')->date(),
             ])

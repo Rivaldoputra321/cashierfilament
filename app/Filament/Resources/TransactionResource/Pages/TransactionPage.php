@@ -249,15 +249,17 @@ class TransactionPage extends Page
                     if (!$this->selectedMember) {
                         $isApplicable = false;
                     } else {
-                        // Parse member tiers properly
-                        $memberTiersStr = $productDiscount->member_tiers;
+                        // Parse member tiers properly - handle JSON string
                         $memberTiers = [];
+                        $memberTiersStr = $productDiscount->member_tiers;
                         
                         if (!empty($memberTiersStr)) {
-                            // Handle both string and array formats
-                            if (is_string($memberTiersStr)) {
+                            // Properly decode JSON string
+                            if (is_string($memberTiersStr) && $this->isJson($memberTiersStr)) {
+                                $memberTiers = array_map('strtolower', json_decode($memberTiersStr, true));
+                            } elseif (is_string($memberTiersStr)) {
                                 $memberTiers = array_map('trim', array_map('strtolower', explode(',', $memberTiersStr)));
-                            } else if (is_array($memberTiersStr)) {
+                            } elseif (is_array($memberTiersStr)) {
                                 $memberTiers = array_map('strtolower', $memberTiersStr);
                             }
                             
@@ -296,15 +298,17 @@ class TransactionPage extends Page
                         if (!$this->selectedMember) {
                             $isApplicable = false;
                         } else {
-                            // Parse member tiers properly
-                            $memberTiersStr = $categoryDiscount->member_tiers;
+                            // Parse member tiers properly - handle JSON string
                             $memberTiers = [];
+                            $memberTiersStr = $categoryDiscount->member_tiers;
                             
                             if (!empty($memberTiersStr)) {
-                                // Handle both string and array formats
-                                if (is_string($memberTiersStr)) {
+                                // Properly decode JSON string
+                                if (is_string($memberTiersStr) && $this->isJson($memberTiersStr)) {
+                                    $memberTiers = array_map('strtolower', json_decode($memberTiersStr, true));
+                                } elseif (is_string($memberTiersStr)) {
                                     $memberTiers = array_map('trim', array_map('strtolower', explode(',', $memberTiersStr)));
-                                } else if (is_array($memberTiersStr)) {
+                                } elseif (is_array($memberTiersStr)) {
                                     $memberTiers = array_map('strtolower', $memberTiersStr);
                                 }
                                 
@@ -328,7 +332,12 @@ class TransactionPage extends Page
             // STEP 3: Apply the selected discount
             if ($bestDiscount) {
                 $discountPercentage = $bestDiscount->discount_percentage;
-                $discountId = $bestDiscount->discount_id; // Fixed: Access the correct field
+                // Try to get the discount ID using different potential field names
+                if (property_exists($bestDiscount, 'discount_id')) {
+                    $discountId = $bestDiscount->discount_id;
+                } elseif (property_exists($bestDiscount, 'id')) {
+                    $discountId = $bestDiscount->id;
+                }
             }
     
             // STEP 4: Calculate discount value per unit
@@ -348,6 +357,61 @@ class TransactionPage extends Page
         // Save changes to session
         session()->put('cart_items', $this->cartItems);
     }
+    
+    // Helper method to check if a string is valid JSON
+    private function isJson($string) {
+        json_decode($string);
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+
+    public function debugMemberDiscount()
+{
+    // Log the member information
+    $memberDebug = [
+        'selected_member' => $this->selectedMember ? [
+            'id' => $this->selectedMember->id,
+            'name' => $this->selectedMember->name,
+            'tier' => $this->selectedMember->tier,
+            'tier_lower' => strtolower($this->selectedMember->tier),
+            'tier_trimmed' => trim($this->selectedMember->tier),
+            'tier_trimmed_lower' => strtolower(trim($this->selectedMember->tier))
+        ] : 'No member selected',
+    ];
+    
+    // Check if there are any member-specific discounts in the database
+    $memberDiscounts = DB::table('discounts')
+        ->where('is_member_only', 1)
+        ->where('start_date', '<=', now())
+        ->where('end_date', '>=', now())
+        ->get();
+    
+    $memberDebug['member_discounts'] = [];
+    
+    foreach ($memberDiscounts as $discount) {
+        $memberDebug['member_discounts'][] = [
+            'id' => $discount->id,
+            'type' => $discount->type,
+            'discount_percentage' => $discount->discount_percentage,
+            'is_member_only' => $discount->is_member_only,
+            'member_tiers' => $discount->member_tiers,
+            'member_tiers_type' => gettype($discount->member_tiers),
+            'min_quantity' => $discount->min_quantity,
+            'start_date' => $discount->start_date,
+            'end_date' => $discount->end_date
+        ];
+    }
+    
+    // Show the debug information
+    Notification::make()
+        ->title('Member Discount Debug')
+        ->body(print_r($memberDebug, true))
+        ->info()
+        ->persistent()
+        ->send();
+    
+    // Recalculate discounts to see if they apply
+    $this->calculateAllDiscounts();
+}
     
     public function searchMember()
     {

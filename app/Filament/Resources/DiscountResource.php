@@ -77,10 +77,13 @@ class DiscountResource extends Resource
                 TextInput::make('discount_percentage')
                     ->label('Discount Percentage (%)')
                     ->numeric()
+                    ->minValue(1)
+                    ->maxValue(90)
                     ->required(),
 
                 TextInput::make('min_quantity')
                     ->label('Minimum Quantity')
+                    ->minValue(0)
                     ->numeric()
                     ->nullable(),
 

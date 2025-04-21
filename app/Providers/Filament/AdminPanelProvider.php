@@ -10,6 +10,7 @@ use App\Filament\Pages\Auth\Login;
 use Filament\Support\Colors\Color;
 use Awcodes\Overlook\OverlookPlugin;
 use App\Filament\Resources\UserResource;
+use App\Filament\Resources\ReportResource;
 use Filament\Http\Middleware\Authenticate;
 use App\Filament\Resources\ProductResource;
 use Awcodes\Overlook\Widgets\OverlookWidget;
@@ -22,6 +23,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use App\Filament\Resources\ReportResource\Widgets\FinancialSummaryWidget;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -44,7 +46,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
+                FinancialSummaryWidget::class, 
                 OverlookWidget::class,
+            ])
+            ->resources([
+                ReportResource::class, // Register the financial report resource
             ])
             ->middleware([
                 EncryptCookies::class,

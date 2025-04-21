@@ -56,6 +56,7 @@ class ProductResource extends Resource
                 ->maxLength(255),
                 TextInput::make('stok')
                 ->numeric()
+                ->minValue(1)
                 ->label('Stock')
                 ->required()
                 ->maxValue(42949672.95),

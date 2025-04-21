@@ -363,55 +363,6 @@ class TransactionPage extends Page
         json_decode($string);
         return json_last_error() === JSON_ERROR_NONE;
     }
-
-    public function debugMemberDiscount()
-{
-    // Log the member information
-    $memberDebug = [
-        'selected_member' => $this->selectedMember ? [
-            'id' => $this->selectedMember->id,
-            'name' => $this->selectedMember->name,
-            'tier' => $this->selectedMember->tier,
-            'tier_lower' => strtolower($this->selectedMember->tier),
-            'tier_trimmed' => trim($this->selectedMember->tier),
-            'tier_trimmed_lower' => strtolower(trim($this->selectedMember->tier))
-        ] : 'No member selected',
-    ];
-    
-    // Check if there are any member-specific discounts in the database
-    $memberDiscounts = DB::table('discounts')
-        ->where('is_member_only', 1)
-        ->where('start_date', '<=', now())
-        ->where('end_date', '>=', now())
-        ->get();
-    
-    $memberDebug['member_discounts'] = [];
-    
-    foreach ($memberDiscounts as $discount) {
-        $memberDebug['member_discounts'][] = [
-            'id' => $discount->id,
-            'type' => $discount->type,
-            'discount_percentage' => $discount->discount_percentage,
-            'is_member_only' => $discount->is_member_only,
-            'member_tiers' => $discount->member_tiers,
-            'member_tiers_type' => gettype($discount->member_tiers),
-            'min_quantity' => $discount->min_quantity,
-            'start_date' => $discount->start_date,
-            'end_date' => $discount->end_date
-        ];
-    }
-    
-    // Show the debug information
-    Notification::make()
-        ->title('Member Discount Debug')
-        ->body(print_r($memberDebug, true))
-        ->info()
-        ->persistent()
-        ->send();
-    
-    // Recalculate discounts to see if they apply
-    $this->calculateAllDiscounts();
-}
     
     public function searchMember()
     {

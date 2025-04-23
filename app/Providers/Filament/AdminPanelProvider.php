@@ -23,7 +23,8 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use App\Filament\Resources\ReportResource\Widgets\FinancialSummaryWidget;
+use App\Filament\Resources\TransactionResource\Pages\TransactionPage;
+
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -43,15 +44,13 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,
+                TransactionPage::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                FinancialSummaryWidget::class, 
                 OverlookWidget::class,
             ])
-            ->resources([
-                ReportResource::class, // Register the financial report resource
-            ])
+   
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

@@ -9,20 +9,28 @@ use App\Models\member;
 use App\Models\product;
 use Livewire\Component;
 use Filament\Forms\Form;
+use Filament\Pages\Page;
 use App\Models\DetailSale;
 use Livewire\Attributes\On;
-use Filament\Resources\Pages\Page;
 use Illuminate\Support\Facades\DB;
 use Filament\Support\Exceptions\Halt;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use App\Filament\Resources\TransactionResource;
 
 class TransactionPage extends Page
 {
-    protected static string $resource = TransactionResource::class;
 
-    protected static string $view = 'filament.resources.transaction-resource.pages.transaction-page';
+
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static ?string $navigationLabel = 'Transaction';
+    protected static ?string $title = 'Transaction';
+    protected static ?string $navigationGroup = 'Transaction';
+    protected static string $view = 'filament.pages.transaction-page';
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()->hasAnyRole(['admin', 'employee']);
+    }
 
     public $productCode = '';
     public $memberCode = '';
@@ -41,12 +49,15 @@ class TransactionPage extends Page
     public $productList = [];
     public $memberList = [];
 
-    public function mount()
-    {
-        $this->cartItems = session()->get('cart_items', []);
-        $this->calculateTotal();
-    }
+    // In your TransactionPage.php
+public function mount()
+{
+    $this->cartItems = session()->get('cart_items', []);
+    $this->calculateTotal();
     
+}
+
+
     // Method to handle product search in modal
     public function updatedProductSearch()
     {

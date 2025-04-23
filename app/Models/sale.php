@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use App\Models\member;
 use App\Models\DetailSale;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +28,10 @@ class sale extends Model
     public function member()
     {
         return $this->belongsTo(member::class);
+    }
+    public function User()
+    {
+        return $this->belongsTo(User::class);
     }
     public function details()
     {
